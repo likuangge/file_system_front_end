@@ -26,7 +26,7 @@
 
 <script>
 
-  import {createFile} from '../../api'
+  import {createFile, getFileList} from '../../api'
 
   export default {
     data() {
@@ -44,6 +44,8 @@
           fileContent: this.NewFile.fileContent
         }).then((data) => {
           if(data.success) {
+            this.NewFile.fileName = "";
+            this.NewFile.fileContent = "";
             this.$message.success("创建文件成功");
           } else {
             this.$message.error(data.statusInfo);
@@ -53,7 +55,7 @@
         })
       },
       view() {
-
+        this.$router.push("/view");
       }
     }
   }
