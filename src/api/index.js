@@ -7,3 +7,6 @@ export const createFile = ({fileName, fileContent}) => ajax(BASE_URL + "/file/cr
 
 //分页获取文件列表
 export const getFileList = ({page, rows}) => ajax(BASE_URL + "/file/getList", {page, rows}, "POST");
+
+//获取文件内容
+export const getFile = (fileNo) => ajax(BASE_URL + "/file/getFile", {fileNo});
