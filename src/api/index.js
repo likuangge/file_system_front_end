@@ -10,3 +10,12 @@ export const getFileList = ({page, rows}) => ajax(BASE_URL + "/file/getList", {p
 
 //获取文件内容
 export const getFile = (fileNo) => ajax(BASE_URL + "/file/getFile", {fileNo});
+
+//获取文件读锁
+export const getReadLock = (fileNo) => ajax(BASE_URL + "/file/getReadLock", {fileNo});
+
+//保存文件
+export const saveFile = ({fileNo, fileName, fileContent, threadId}) => ajax(BASE_URL + "/file/saveFile", {fileNo, fileName, fileContent, threadId}, "POST");
+
+//删除锁
+export const delLock = ({fileNo, threadId}) => ajax(BASE_URL + "/file/delLock", {fileNo, threadId}, "POST");

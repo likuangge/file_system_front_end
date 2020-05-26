@@ -29,7 +29,7 @@
 
 <script>
 
-  import {getFileList} from '../../api'
+  import {getFileList, getReadLock} from '../../api'
 
   export default {
     data() {
@@ -81,8 +81,21 @@
         return "http://localhost:8081/file/download?fileNo=" + file.fileNo;
       },
       edit(file) {
-        this.$store.commit("File/setFileNo", file.fileNo);
-        this.$router.push("/edit");
+        getReadLock(file.fileNo).then((data) => {
+          if(data.success) {
+            if(data.data.readLock === 1) {
+              this.$store.commit("File/setFileNo", file.fileNo);
+              this.$store.commit("File/setThreadId", data.data.threadId);
+              this.$router.push("/edit");
+            } else {
+              this.$message.warning("其他人正在编辑文件，请稍等")
+            }
+          } else {
+            this.$message.error(data.statusInfo);
+          }
+        }).catch(() => {
+          this.$message.error("读取文件失败")
+        })
       },
       newFile() {
         this.$router.push("/new");

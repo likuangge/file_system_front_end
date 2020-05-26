@@ -12,7 +12,7 @@
           <el-form-item label="文件名称" required="true">
             <el-input v-model="NewFile.fileName" clearable/>
           </el-form-item>
-          <el-form-item label="文件内容" required="true">
+          <el-form-item label="文件内容">
             <el-input type="textarea" v-model="NewFile.fileContent" clearable/>
           </el-form-item>
         </el-form>
@@ -39,20 +39,26 @@
     },
     methods: {
       create() {
-        createFile({
-          fileName: this.NewFile.fileName,
-          fileContent: this.NewFile.fileContent
-        }).then((data) => {
-          if(data.success) {
-            this.NewFile.fileName = "";
-            this.NewFile.fileContent = "";
-            this.$message.success("创建文件成功");
-          } else {
-            this.$message.error(data.statusInfo);
-          }
-        }).catch(() => {
-          this.$message.error("创建文件失败!");
-        })
+        if(this.NewFile.fileName.length === 0) {
+          this.$message.warning("请输入文件名");
+        } else if(this.NewFile.fileName.length > 30) {
+          this.$message.warning("文件名过长");
+        } else {
+          createFile({
+            fileName: this.NewFile.fileName,
+            fileContent: this.NewFile.fileContent
+          }).then((data) => {
+            if (data.success) {
+              this.NewFile.fileName = "";
+              this.NewFile.fileContent = "";
+              this.$message.success("创建文件成功");
+            } else {
+              this.$message.error(data.statusInfo);
+            }
+          }).catch(() => {
+            this.$message.error("创建文件失败!");
+          })
+        }
       },
       view() {
         this.$router.push("/view");

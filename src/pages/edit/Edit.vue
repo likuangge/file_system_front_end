@@ -23,7 +23,7 @@
         </el-form>
       </el-main>
       <el-footer style="margin-left:70px">
-        <el-button @click="save" type="primary">保存</el-button>
+        <el-button @click="save" type="primary" :disabled="disabled">保存</el-button>
       </el-footer>
     </el-container>
   </el-container>
@@ -32,7 +32,7 @@
 <script>
 
   import {mapState} from 'vuex';
-  import {getFile} from '../../api';
+  import {getFile, saveFile, delLock} from '../../api';
   import {Loading} from 'element-ui';
 
   export default {
@@ -42,38 +42,81 @@
           fileNo: "",
           fileName: "",
           fileContent: ""
-        }
+        },
+        disabled: false
       }
     },
     computed: {
       ...mapState({
-        fileNo: state => state.File.fileNo
+        fileNo: state => state.File.fileNo,
+        threadId: state => state.File.threadId
       })
     },
     mounted() {
-      let loading = Loading.service({fullscreen: true});
-      getFile(this.fileNo).then((data) => {
-        loading.close();
-        if (data.success) {
-          this.File.fileNo = data.data.fileNo;
-          this.File.fileName = data.data.fileName;
-          this.File.fileContent = data.data.fileContent;
-        } else {
-          this.$message.error(data.statusInfo);
-        }
-      }).catch(() => {
-        loading.close();
-        this.$message.error("获取文件详情失败")
-      })
+      if(this.fileNo === null) {
+        this.$router.push("/new");
+        this.$message.warning("无文件编号，无法编辑");
+      } else {
+        this.disabled = false;
+        let loading = Loading.service({fullscreen: true});
+        getFile(this.fileNo).then((data) => {
+          loading.close();
+          if (data.success) {
+            this.File.fileNo = data.data.fileNo;
+            this.File.fileName = data.data.fileName;
+            this.File.fileContent = data.data.fileContent;
+          } else {
+            this.$message.error(data.statusInfo);
+          }
+        }).catch(() => {
+          loading.close();
+          this.$message.error("获取文件详情失败")
+        })
+      }
     },
     methods: {
       save() {
-
+        this.disabled = true;
+        saveFile({
+          fileNo: this.File.fileNo,
+          fileName: this.File.fileName,
+          fileContent: this.File.fileContent,
+          threadId: this.threadId
+        }).then((data) => {
+          if(data.success) {
+            this.$router.push("/view");
+            this.$message.success("保存成功");
+          } else {
+            this.$message.error(data.statusInfo);
+          }
+        }).catch(() => {
+          this.$message.error("保存文件失败")
+        })
       },
       view() {
+        delLock({
+          fileNo: this.File.fileNo,
+          threadId: this.threadId
+        }).then((data) => {
+          console.log(data);
+        }).catch(() => {
+          this.$message.error("跳转页面异常")
+        });
+        this.$store.commit("File/setFileNo", null);
+        this.$store.commit("File/setThreadId", null);
         this.$router.push("/view");
       },
       newFile() {
+        delLock({
+          fileNo: this.File.fileNo,
+          threadId: this.threadId
+        }).then((data) => {
+          console.log(data);
+        }).catch(() => {
+          this.$message.error("跳转页面异常")
+        });
+        this.$store.commit("File/setFileNo", null);
+        this.$store.commit("File/setThreadId", null);
         this.$router.push("/new");
       }
     }

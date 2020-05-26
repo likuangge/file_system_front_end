@@ -1,10 +1,14 @@
 const state = {
-  fileNo: ""
+  fileNo: null,
+  threadId: null
 };
 
 const mutations = {
   setFileNo(state, fileNo) {
     state.fileNo = fileNo;
+  },
+  setThreadId(state, threadId) {
+    state.threadId = threadId;
   }
 };
 
